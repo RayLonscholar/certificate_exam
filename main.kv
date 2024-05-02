@@ -1,0 +1,495 @@
+#:import platform kivy.utils.platform
+WindowManager:
+    MDLayout:
+    TEST_OPLayout:
+    Multiple_choiceLayout:
+    Check_miss:
+    ClozeLayout:
+    WORDLayout:
+    OPEDITLayout:
+    EDITLayout:
+    ADDLayout:
+    EDworkLayout:
+    OPENLayout:
+    
+<Title@Label>:
+    font_size : 80
+    font_name : "./font/msjh.ttc"
+    color : (1, 1, 1, 1)
+    canvas.before:
+        Color:
+            rgba : (100/255, 200/255, 100/255, 1)
+        Rectangle:
+            size : self.size 
+            pos : self.pos
+
+# <Info@Popup>:
+#     id : Info
+#     title : "TEST"
+#     MDFlatButton:
+#         text : "CANCEL"
+#         theme_text_color: "Custom"
+
+<MD3Card>:
+    padding: 4
+    orientation:'vertical'
+    size_hint_y: None
+    size: "200dp", "100dp"
+    ripple_behavior : True
+
+    MDRelativeLayout:
+        MDIconButton:
+            icon : "dots-vertical"
+            pos_hint : {"top": 1, "right": 1}
+        MDLabel:
+            id : label
+            text : root.text
+            font_name : "./font/msjh.ttc"
+            text_size : (10,None)
+            font_size : 60
+            halign: 'center'
+            valign: 'middle'
+            adaptive_size : True
+            color : "black"
+            pos : "12dp", "12dp"
+            bold : True
+
+<OPButton@Button>:
+    font_size : 60 # 90
+    font_name : "./font/msjh.ttc"
+
+<WordInput@TextInput>:
+    font_size : 50
+    font_name : "./font/msjh.ttc"
+
+<TESTButton@Button>:
+    font_size : 45
+    font_name : "./font/msjh.ttc"
+
+<MDLayout>:
+    name : "OP"
+    BoxLayout:
+        orientation : "vertical"
+        size : root.width, root.height
+        MDTopAppBar:
+            id : T
+            title : "[font=./font/msjh.ttc]Q&A      [default first][/font]"
+            left_action_items : [["menu", lambda x: root.open_season(x)]]
+        BoxLayout:
+            orientation : "vertical"
+            size : root.width, root.height
+            padding : 30
+            spacing : 10
+            # MDDropDownItem:
+            #     id: drop_item
+            #     pos_hint: {'center_x': .5, 'center_y': .5}
+            #     text: ''
+            #     on_release: print("Press item")
+            OPButton:
+                text : "查看題目"
+                on_release : root.open_word(self)
+            OPButton:
+                text : "測驗"
+                on_release : root.open_test(self)
+            OPButton:
+                text : "新增內容"
+                on_release : root.open_edit(self)
+            OPButton:
+                text : "修改工作表"
+                on_release : root.open_file(self)
+
+<CustomSnackbar>:
+    MDIconButton:
+        pos_hint : {'center_y': .5}
+        icon : root.icon
+        opposite_colors : False
+    MDLabel:
+        id : text_bar
+        size_hint_y : None
+        height : self.texture_size[1]
+        text : root.text
+        font_name : "./font/msjh.ttc"
+        font_size : root.font_size
+        theme_text_color : 'Custom'
+        text_color : 'ffffff'
+        shorten : True
+        shorten_from : 'right'
+        pos_hint : {'center_y': .5}
+
+<WORDLayout>:
+    name : "word"
+    MDBoxLayout:
+        orientation : "vertical"
+        size : root.width, root.height
+        MDScrollView:
+            id : view
+            do_scroll_x : True
+            do_scroll_y : True
+            GridLayout:
+                id : grid1
+                cols: 1
+                size_hint_y: None
+                height: self.minimum_height
+            # MDList:
+            #     id: list
+        MDBoxLayout:
+            orientation : "horizontal"
+            size : root.width, root.height
+            size_hint : (1,.1)
+            Button:
+            # Back
+                text : "Back"
+                font_size : 40
+                on_release : root.back(self)
+            Button:
+            # 上一頁
+                text : "PageUp"
+                font_size : 40
+                on_release : root.page_u(self)
+            Button:
+            # 下一頁
+                text : "PageDown"
+                font_size : 40
+                on_release : root.page_d(self)
+
+<TEST_OPLayout>:
+    name : "test_op"
+    BoxLayout:
+        orientation : "vertical"
+        size : root.width, root.height
+        BoxLayout:
+            orientation : "horizontal"
+            size_hint : (1,.1)
+            Label:
+                text : "題號："
+                font_size : 30
+                font_name : "./font/msjh.ttc"
+            TextInput:
+                id : start
+                hint_text : "start"
+                font_size : 30
+            Label:
+                text : "~"
+                font_size : 30
+                font_name : "./font/msjh.ttc"
+            TextInput:
+                id : end
+                hint_text : "end"
+                font_size : 30
+            Button:
+                text : "全部"
+                font_size : 30
+                font_name : "./font/msjh.ttc"
+                on_press : root.q_all(self)
+        BoxLayout:
+            orientation : "vertical"
+            size : root.width, root.height
+            size_hint : (1,.8)
+            padding : 25
+            spacing : 10
+            OPButton:
+                text : "選擇題"
+                on_press : root.ch_test(self)
+            OPButton:
+                text : "填充題"
+                on_press : root.cloze(self)
+        OPButton:
+            size_hint : (1, .2)
+            text : "Back"
+            on_press : root.back(self)
+
+<Multiple_choiceLayout>:
+    name : "mc"
+    BoxLayout:
+        orientation : "vertical"
+        size : root.width, root.height
+        BoxLayout:
+            orientation : "vertical"
+            spacing : 10
+            Image:
+                id : q_image
+                size_hint : (0, 0)
+            ScrollView:
+                do_scroll_x : False
+                do_scroll_y : True
+                Label:
+                    id : test_word
+                    size_hint_y : None
+                    text : ""
+                    text_size : (self.width / 1.5, None)
+                    font_size : 30
+                    font_name : "./font/msjh.ttc"
+            GridLayout:
+                id : Grid
+                cols : 2
+                size_hint : (1, .3)
+                TESTButton:
+                    id : one
+                    text : "A"
+                    on_press : root.test(self)
+                TESTButton:
+                    id : two
+                    text : "B"
+                    on_press : root.test(self)
+                TESTButton:
+                    id : three
+                    text : "C"
+                    on_press : root.test(self)
+                TESTButton:
+                    id : four
+                    text : "D"
+                    on_press : root.test(self)
+        BoxLayout:
+            orientation : "horizontal"
+            size_hint : (1, .1)
+            Button:
+                text : "Back"
+                font_size : 40
+                on_press : root.back(self)
+
+<Check_miss>:
+    name : "check"
+    BoxLayout:
+        orientation : "vertical"
+        size : root.width, root.height
+        Label:
+            id : score
+            size_hint : (1, .1)
+            text : ""
+            font_size : 30
+            font_name : "./font/msjh.ttc"
+        BoxLayout:
+            orientation : "vertical"
+            spacing : 10
+            Image:
+                id : q_image
+                source : ""
+                size : 0, 0
+                size_hint : (0, 0)
+            ScrollView:
+                do_scroll_x : False
+                do_scroll_y : True
+                Label:
+                    id : miss_q
+                    size_hint_y : None
+                    text : ""
+                    text_size : (self.width / 1.5, None)
+                    font_size : 30
+                    font_name : "./font/msjh.ttc"
+        BoxLayout:
+            orientation : "horizontal"
+            size_hint : (1, .1)
+            Button:
+                text : "DIS"
+                font_size : 40
+                on_press : root.back(self)
+            Button:
+                id : b
+                text : "BACK"
+                font_size : 40
+                on_press : root.to_up(self)
+                disabled : True
+            Button:
+                id : n
+                text : "NEXT"
+                font_size : 40
+                on_press : root.to_down(self)
+                disabled : True
+
+<ClozeLayout>:
+    name : "cloze"
+    BoxLayout:
+        orientation : "vertical"
+        size : root.width, root.height
+        padding : 25
+        spacing : 10
+        BoxLayout:
+            orientation : "vertical"
+            spacing : 10
+            Image:
+                id : q_image
+                size_hint : (0, 0)
+            ScrollView:
+                do_scroll_x : False
+                do_scroll_y : True
+                Label:
+                    id : test_word
+                    size_hint_y : None
+                    text : ""
+                    text_size : (self.width / 1.5, None)
+                    font_size : 30
+                    font_name : "./font/msjh.ttc"
+            WordInput:
+                size_hint : (1, .35)
+                id : cloze_input
+                text : ""
+                hint_text : "請輸入答案"
+        BoxLayout:
+            orientation : "horizontal"
+            size_hint : (1, .1)
+            Button:
+                text : "Back"
+                font_size : 40
+                on_press : root.back(self)
+            Button:
+                text : "送出"
+                font_size : 40
+                font_name : "./font/msjh.ttc"
+                on_press : root.test(self)
+
+<OPEDITLayout>:
+    name : "opedit"
+    BoxLayout:
+        orientation : "vertical"
+        size : root.width, root.height
+        BoxLayout:
+            orientation : "vertical"
+            size : root.width, root.height
+            padding : 30
+            spacing : 10
+            Button:
+                text : "刪除/新增工作表"
+                font_size : 45
+                on_release : root.open_work(self)
+                font_name : "./font/msjh.ttc"
+            Button:
+                text : "複製新工作表"
+                font_size : 45
+                on_release : root.open_copy(self)
+                font_name : "./font/msjh.ttc"
+            Button:
+                text : "Back"
+                font_size : 45
+                on_release : root.back(self)
+
+<EDITLayout>:
+    name : "edit"
+    BoxLayout:
+        orientation : "vertical"
+        size : root.width, root.height
+        Label:
+            id : edit_label
+            text : ""
+            font_size : 50
+            font_name : "./font/msjh.ttc"
+        WordInput:
+            id : edit_input
+            text : ""
+        BoxLayout:
+            orientation : "horizontal"
+            size_hint : (1, .2)
+            Button:
+                text : "Back"
+                font_size : 45
+                on_press : root.back(self)
+            Button:
+                text : "刪除"
+                font_size : 45
+                font_name : "./font/msjh.ttc"
+                on_press : root.delete(self)
+            Button:
+                text : "修改"
+                font_size : 45
+                font_name : "./font/msjh.ttc"
+                on_press : root.submit(self)
+
+<ADDLayout>:
+    name : "add"
+    BoxLayout:
+        orientation : "vertical"
+        size : root.width, root.height
+        Label:
+            text : "     指令格式如下：\n\n !n 為換下一行 \n ex：example!n範例 \n --> example \n --> 範例"
+            font_size : 30
+            font_name : "./font/msjh.ttc"
+        WordInput:
+            id : Input
+            hint_text : "請輸入指令"
+        BoxLayout:
+            orientation : "horizontal"
+            size_hint : (1, .2)
+            Button:
+                text : "Back"
+                font_size : 45
+                on_release : root.back(self)
+            Button:
+                text : "新增"
+                font_size : 45
+                font_name : "./font/msjh.ttc"
+                on_release : root.Add(self)
+
+<EDworkLayout>:
+    name : "edwork"
+    BoxLayout:
+        orientation : "vertical"
+        size : root.width, root.height
+        spacing : 20
+        BoxLayout:
+            orientation : "vertical"
+            BoxLayout:
+                orientation : "horizontal"
+                size_hint : (1, .4)
+                Label:
+                    text : "新增工作表："
+                    font_size : 30
+                    font_name : "./font/msjh.ttc"
+                TextInput:
+                    id : work1
+                    hint_text : "輸入工作表"
+                    font_size : 30
+                    font_name : "./font/msjh.ttc"
+            Button:
+                size_hint : (1, .1)
+                text : "新增"
+                font_size : 45
+                font_name : "./font/msjh.ttc"
+                on_release : root.add_w(self)
+            BoxLayout:
+                orientation : "horizontal"
+                size_hint : (1, .4)
+                Label:
+                    text : "刪除工作表："
+                    font_size : 30
+                    font_name : "./font/msjh.ttc"
+                TextInput:
+                    id : work2
+                    hint_text : "輸入工作表"
+                    font_size : 30
+                    font_name : "./font/msjh.ttc"
+            Button:
+                size_hint : (1, .1)
+                text : "刪除"
+                font_size : 45
+                font_name : "./font/msjh.ttc"
+                on_release : root.dlt_w(self)
+        Button:
+            size_hint : (1, .1)
+            text : "Back"
+            font_size : 45
+            font_name : "./font/msjh.ttc"
+            on_release : root.back(self)
+
+
+<OPENLayout>:
+    name : "openfile"
+    BoxLayout:
+        orientation : "vertical"
+        size : root.width, root.height
+        padding : 25
+        spacing : 10
+        FileChooserIconView:    #FileChooserListView
+            id : filechooser
+            rootpath: '/storage/emulated/0' if platform == 'android' else '/'
+            on_selection : root.selected(filechooser.selection)
+            font_name : "./font/msjh.ttc"
+        BoxLayout:
+            orientation : "horizontal"
+            size_hint : (1, .2)
+            Button:
+                text : "Back"
+                font_size : 45
+                on_release : root.back(self)
+            Button:
+                text : "Open"
+                font_size : 45
+                on_release : root.f_open(self)
