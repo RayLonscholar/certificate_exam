@@ -2,53 +2,66 @@ import docx
 import openpyxl
 import os, re
 
-filename = "20190311Python教學考古選擇題.docx"
+filename = "Java考古題(選擇).docx"
 doc = docx.Document(filename)
 para = doc.paragraphs
 print('段落數量： ', len(para),'\n')
 i = 0
-is_first_topic = False
-is_topic = False
+is_first_topic = False # 是否為題目開始的段落
+is_topic = False # 是否為題目
 save_path = ".\\imgs\\"
 
+# 匯出word裡的圖片
 def w_img(blob_data, save_path):
     with open(save_path, "wb") as f:
         f.write(blob_data)
 
-for _ in range(0, len(para)):
-    try:
-        content = para[_]
-        # print([content[0], content[4], content[5]])
+def to_excel(workbook): # workbook, data, x, y
+    excel = openpyxl.load_workbook('exam_data.xlsx')
+    all_sheetnames = excel.sheetnames
+    if workbook in all_sheetnames: # 判斷輸入的工作表是否存在
+        excel[workbook] # 開啟工作表
+    else:
+        excel.create_sheet("{}".format(workbook)) # 創建工作表
 
-        if content.text != "": # 判斷文本是否為空值
-            topic = re.sub(r'^\d+', '', content.text)
-            option = [content.text[0], content.text[1]]
-            if len(topic) > 6:
-                if [topic[0], topic[4], topic[5]] == ['(', ')', '：'] or [topic[0], topic[2], topic[3]] == ['（', '）', '：']:
-                    i += 1
-                    is_first_topic = True
-                    is_topic = True
-                    print(i, topic)
-            # match ... case ... 只支援python 3.10以上
-            # 為了相容性則不選擇使用
-            if option == ['A', '：']: # 選項A
-                is_topic = False
-                print(content.text)
-            if option == ['B', '：']: # 選項B
-                is_topic = False
-                print(content.text)
-            if option == ['C', '：']: # 選項C
-                is_topic = False
-                print(content.text)
-            if option == ['D', '：']: # 選項D
-                is_topic = False
-                print(content.text)
-            if is_topic and is_first_topic == False:
-                print(content.text)
-            is_first_topic = False
-        img = content._element.xpath(".//pic:pic")
-        if img:
-            print(img)
+    # 最後要save
+
+to_excel(123)
+
+# 取得word裡的題目(含選項)與圖片
+# for _ in range(0, len(para)):
+#     try:
+#         content = para[_]
+#         if content.text != "": # 判斷文本是否為空值
+#             topic = re.sub(r'^\d+', '', content.text) # 去掉題目的題號
+#             option = [content.text[0], content.text[1]]
+#             # 取得題目
+#             if len(topic) > 6:
+#                 if [topic[0], topic[4], topic[5]] == ['(', ')', '：'] or [topic[0], topic[2], topic[3]] == ['（', '）', '：']:
+#                     i += 1
+#                     is_first_topic = True
+#                     is_topic = True
+#                     print(i, topic)
+#             # match ... case ... 只支援python 3.10以上
+#             # 為了相容性則不選擇使用
+#             if option == ['A', '：']: # 選項A
+#                 is_topic = False
+#                 print(content.text)
+#             elif option == ['B', '：']: # 選項B
+#                 is_topic = False
+#                 print(content.text)
+#             elif option == ['C', '：']: # 選項C
+#                 is_topic = False
+#                 print(content.text)
+#             elif option == ['D', '：']: # 選項D
+#                 is_topic = False
+#                 print(content.text)
+#             if is_topic and is_first_topic == False: # 判斷是否還有題目
+#                 print(content.text)
+#             is_first_topic = False
+#         img = content._element.xpath(".//pic:pic")
+#         if img:
+#             print(img)
 
         #     img = img[0]
         #     rel = img.xpath('.//a:blip/@r:embed')[0]
@@ -57,8 +70,8 @@ for _ in range(0, len(para)):
         #     # print(imagepart.image.blob)
         #     w_img(img_blob, "{}img{}.png".format(save_path, i))
 
-    except IndexError:
-        print("IndexERROR")
+    # except IndexError:
+    #     print("IndexERROR")
 
 
 def get_pictures(word_path, result_path): # 讀取圖片
