@@ -1,14 +1,16 @@
 import docx
 import openpyxl
+from openpyxl.drawing.image import Image
 import os, re
 
-filename = "Java考古題(選擇).docx"
+filename = "test.docx"
 doc = docx.Document(filename)
 para = doc.paragraphs
 print('段落數量： ', len(para),'\n')
 i = 0
 is_first_topic = False # 是否為題目開始的段落
 is_topic = False # 是否為題目
+answer = 
 save_path = ".\\imgs\\"
 
 # 匯出word裡的圖片
@@ -16,8 +18,8 @@ def w_img(blob_data, save_path):
     with open(save_path, "wb") as f:
         f.write(blob_data)
 
-def to_excel(workbook, data, x, y): # workbook, data, x, y
-    excel = openpyxl.load_workbook('exam_data.xlsx')
+def to_excel(workbook, data, x, y, is_topic = None): # workbook, data, x, y
+    excel = openpyxl.load_workbook("exam_data.xlsx")
     all_sheetnames = excel.sheetnames
     if workbook in all_sheetnames: # 判斷輸入的工作表是否存在
         wb = excel[workbook] # 開啟工作表
@@ -26,56 +28,69 @@ def to_excel(workbook, data, x, y): # workbook, data, x, y
         excel.create_sheet("{}".format(workbook))
         wb = excel[workbook]
     # 寫入資料至excel
-    wb[""].value = data
+    if is_topic == None:
+        wb["{}{}".format(y, x)].value = data
+    else:
+        wb["{}{}".format(y, x)].value = "{}{}".format(wb["{}{}".format(y, x)].value, data)
+
+    excel.save("exam_data.xlsx")
 
     # 最後要save
 
-to_excel(123)
 
 # 取得word裡的題目(含選項)與圖片
-# for _ in range(0, len(para)):
-#     try:
-#         content = para[_]
-#         if content.text != "": # 判斷文本是否為空值
-#             topic = re.sub(r'^\d+', '', content.text) # 去掉題目的題號
-#             option = [content.text[0], content.text[1]]
-#             # 取得題目
-#             if len(topic) > 6:
-#                 if [topic[0], topic[4], topic[5]] == ['(', ')', '：'] or [topic[0], topic[2], topic[3]] == ['（', '）', '：']:
-#                     i += 1
-#                     is_first_topic = True
-#                     is_topic = True
-#                     print(i, topic)
+for _ in range(0, len(para)):
+    try:
+        content = para[_]
+        if content.text != "": # 判斷文本是否為空值
+            topic = re.sub(r'^\d+', '', content.text) # 去掉題目的題號
+            answer = re.search(r'（(.*?)）', topic)
+            topic = re.sub
+            option = [content.text[0], content.text[1]]
+            # 取得題目
+            if len(topic) > 6:
+                if [topic[0], topic[4], topic[5]] == ['(', ')', '：'] or [topic[0], topic[2], topic[3]] == ['（', '）', '：']:
+                    i += 1
+                    is_first_topic = True
+                    is_topic = True
+                    print(i, topic)
+                    to_excel(filename, topic, i+1, "A")
+
 #             # match ... case ... 只支援python 3.10以上
-#             # 為了相容性則不選擇使用
-#             if option == ['A', '：']: # 選項A
-#                 is_topic = False
-#                 print(content.text)
-#             elif option == ['B', '：']: # 選項B
-#                 is_topic = False
-#                 print(content.text)
-#             elif option == ['C', '：']: # 選項C
-#                 is_topic = False
-#                 print(content.text)
-#             elif option == ['D', '：']: # 選項D
-#                 is_topic = False
-#                 print(content.text)
-#             if is_topic and is_first_topic == False: # 判斷是否還有題目
-#                 print(content.text)
-#             is_first_topic = False
-#         img = content._element.xpath(".//pic:pic")
-#         if img:
-#             print(img)
+#             # 為了相容性則不選擇使用      
+            if option == ['A', '：']: # 選項A
+                is_topic = False
+                print(content.text)
+                to_excel(filename, content.text, i+1, "C")
+            elif option == ['B', '：']: # 選項B
+                is_topic = False
+                print(content.text)
+                to_excel(filename, content.text, i+1, "D")
+            elif option == ['C', '：']: # 選項C
+                is_topic = False
+                print(content.text)
+                to_excel(filename, content.text, i+1, "E")
+            elif option == ['D', '：']: # 選項D
+                is_topic = False
+                print(content.text)
+                to_excel(filename, content.text, i+1, "F")
+            if is_topic and is_first_topic == False: # 判斷是否還有題目
+                print(content.text)
+                to_excel(filename, "!n{}".format(content.text), i+1, "A", 1)
+            is_first_topic = False
+        img = content._element.xpath(".//pic:pic")
+        if img:
+            print(img)
 
-        #     img = img[0]
-        #     rel = img.xpath('.//a:blip/@r:embed')[0]
-        #     image_part = doc.part.related_parts[rel]
-        #     img_blob = image_part.image.blob
-        #     # print(imagepart.image.blob)
-        #     w_img(img_blob, "{}img{}.png".format(save_path, i))
+            img = img[0]
+            rel = img.xpath('.//a:blip/@r:embed')[0]
+            image_part = doc.part.related_parts[rel]
+            img_blob = image_part.image.blob
+            print(image_part.image.blob)
+            w_img(img_blob, "{}img{}.png".format(save_path, i))
 
-    # except IndexError:
-    #     print("IndexERROR")
+    except IndexError:
+        print("IndexERROR")
 
 
 def get_pictures(word_path, result_path): # 讀取圖片
