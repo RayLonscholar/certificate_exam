@@ -16,13 +16,17 @@ def w_img(blob_data, save_path):
     with open(save_path, "wb") as f:
         f.write(blob_data)
 
-def to_excel(workbook): # workbook, data, x, y
+def to_excel(workbook, data, x, y): # workbook, data, x, y
     excel = openpyxl.load_workbook('exam_data.xlsx')
     all_sheetnames = excel.sheetnames
     if workbook in all_sheetnames: # 判斷輸入的工作表是否存在
-        excel[workbook] # 開啟工作表
+        wb = excel[workbook] # 開啟工作表
     else:
-        excel.create_sheet("{}".format(workbook)) # 創建工作表
+        # 創建工作表並開啟
+        excel.create_sheet("{}".format(workbook))
+        wb = excel[workbook]
+    # 寫入資料至excel
+    wb[""].value = data
 
     # 最後要save
 
