@@ -2,7 +2,7 @@ import docx
 import openpyxl
 import os, re
 
-filename = "20190311Python教學考古選擇題" # word檔名
+filename = "Java考古題(選擇)" # word檔名
 doc = docx.Document(filename+".docx") # 開啟word
 para = doc.paragraphs # 整份文件內容
 # print('段落數量： ', len(para),'\n')
@@ -10,7 +10,7 @@ index = 0 # 題號
 is_first_topic = False # 是否為題目開始的段落
 is_topic = False # 是否為題目
 answer = "" # 答案
-save_path = ".\\imgs\\"+filename # 圖片儲存位址
+save_path = "./assets/imgs/"+filename # 圖片儲存位址
 
 # 匯出word裡的圖片
 def w_img(blob_data, save_path):
