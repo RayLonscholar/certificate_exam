@@ -12,7 +12,7 @@ class Review():
             self.topic.visible = False # 隱藏第二區塊
             self.topic_information_main.visible = False # 隱藏第三區塊
             self.topic_edit_main.visible = False # 隱藏第四區塊
-            write_list()
+            write_list() # 刷新工作表選擇
             page.update()
 
         def show_edit(e):
@@ -45,9 +45,10 @@ class Review():
                     spacing=5,
                 ),
             ),
-            on_click=show_edit)
+            on_click=show_edit
+        )
 
-        def start_clicked(e):
+        def review_submit_clicked(e):
             # 讀取excel工作表裡的每一行
             def get_values(sheet):
                 arr = []
@@ -117,7 +118,10 @@ class Review():
                                 )
                             )
                 for index, _ in enumerate([self.topic_option1_edit, self.topic_option2_edit, self.topic_option3_edit, self.topic_option4_edit]):
-                    _.value = content[3+index]
+                    try:
+                        _.value = content[3+index]
+                    except:
+                        _.value = ""
                 # 上一題、下一題、返回按鈕
                 def topic_up_down_button_clicked(e):
                     if e.control.data == "上一題":
@@ -222,13 +226,14 @@ class Review():
                     self.topic_edit.controls.append(_)
                 for _ in [topic_edit_back, topic_edit_submit]:
                     self.topic_edit_button.controls.append(_)
-
+                page.update()
             def topic_list_clicked(e): # 點選題目
                 self.index = e.control.data # row的位置
                 self.topic.visible = False # 隱藏第二區塊
                 self.topic_information_main.visible = True # 顯示第三區塊
                 self.edit_content.visible = True # 顯示修改內容選項
-                content = self.topic_data[self.index-1] # 讀取題目內容
+                content = self.topic_data[self.index-1] # 讀取題目內容\
+                print(content)
                 create_topic_information(content)
                 page.update()
      
@@ -314,7 +319,7 @@ class Review():
             self.excel = openpyxl.load_workbook("exam_data.xlsx") # 讀取excel檔
             self.choose_sheetname.items = []
             page.update()
-        def write_list(): # 寫入共作表清單
+        def write_list(): # 寫入工作表清單
             load_excel()
             for workbook in self.excel.sheetnames[1:]:
                 self.choose_sheetname.items.append(PopupMenuItem(text = f"{workbook}", on_click = lambda e:choose_sheetname_clicked(e))) 
@@ -322,7 +327,7 @@ class Review():
             self.choose_sheetname_text.value = f"題庫：{e.control.text}"
             page.update()
         # 確認送出
-        self.start = TextButton(
+        self.review_submit = TextButton(
             content = Container(
                 content = Column(
                     controls = [
@@ -333,7 +338,7 @@ class Review():
                 ),
                 padding = padding.all(10),
             ),
-            on_click = start_clicked)
+            on_click = review_submit_clicked)
         self.choose_sheetname_text = Text("題庫：", size = 20, weight = "bold")
         self.choose_sheetname = PopupMenuButton(
             items=[],
@@ -352,7 +357,7 @@ class Review():
                         self.choose_sheetname,
                     ],
                 ),
-                self.start,
+                self.review_submit,
             ]
         )
         

@@ -2,7 +2,7 @@ import docx
 import openpyxl
 import os, re
 
-filename = "Java考古題(選擇)" # word檔名
+filename = "test" # word檔名
 doc = docx.Document(filename+".docx") # 開啟word
 para = doc.paragraphs # 整份文件內容
 # print('段落數量： ', len(para),'\n')
