@@ -71,13 +71,14 @@ class Test(UserControl):
                     # self.history_wb["B{}".format(question_index+1)]
                     if mode == "單選":
                         _ = ['A', 'B', 'C', 'D']
-                        ans = _[int(e.control.value)]
-                        if self.my_answer == []:
-                            self.my_answer.append(ans)
-                        else:
-                            self.my_answer[0] = ans
-                        print(self.my_answer)
-                        self.all_my_answers[question_index] = self.my_answer # 記錄此題的答案
+                        print(self.ch.controls)
+                        for i in self.ch.controls: # 只有一個選項能勾
+                            if i.data == e.control.data: # 把不是選中項的取消
+                                i.value = True
+                            else:
+                                i.value = False
+                        ans = _[int(e.control.data)]
+                        self.all_my_answers[question_index] = [ans] # 記錄此題的答案
                         print("ALL：{}".format(self.all_my_answers))
                     
                     if mode == "複選":
@@ -97,68 +98,68 @@ class Test(UserControl):
                         
                     if mode == "是非":
                         _ = ['O', 'X']
-                        ans = _[int(e.control.value)]
-                        if self.my_answer == []:
-                            self.my_answer.append(ans)
-                        else:
-                            self.my_answer[0] = ans
-                        print(self.my_answer)
-                        self.all_my_answers[question_index] = self.my_answer # 記錄此題的答案
-                        print("ALL：{}".format(self.all_my_answers))
-                def choice_question(): # 單選
-                    ch = RadioGroup(
-                        content = Column(
-                            controls = [],
-                        ),
-                        on_change = lambda e:to_my_answer(e, "單選")
-                    )
-                    for index, _ in enumerate(self.question_data[3:]):
-                        option = ['A', 'B', 'C', 'D']
-                        if _ != None:
-                            if _[0] in option: # 判斷是否有圖片
-                                ch.content.controls.append(Radio(value = f"{index}", label = f"{_}", adaptive = True, active_color = colors.BLUE))
+                        print(self.ch.controls)
+                        for i in self.ch.controls: # 只有一個選項能勾
+                            if i.data == e.control.data: # 把不是選中項的取消
+                                i.value = True
                             else:
-                                ch.content.controls.append(Radio(value = f"{index}", label = f"{option[index]}：", adaptive = True, active_color = colors.BLUE))
-                                ch.content.controls.append(Image(src=f"{_}"))
-                    self.question_information.controls.append(ch)
+                                i.value = False
+                        ans = _[int(e.control.data)]
+                        self.all_my_answers[question_index] = [ans] # 記錄此題的答案
+                        print("ALL：{}".format(self.all_my_answers))
+
                     page.update()
-                    # Radio(value = "blue", label = "Blue - Adaptive Radio", adaptive = True, active_color = colors.BLUE),
-                def multiple_choice_questions(): # 複選
-                    ch = Column(
+                def choice_question(): # 單選
+                    self.ch = Column(
                         controls = [],
                     )
                     for index, _ in enumerate(self.question_data[3:]):
                         option = ['A', 'B', 'C', 'D']
                         if _ != None:
                             if _[0] in option: # 判斷是否有圖片
-                                ch.controls.append(Checkbox(data = f"{index}", label = f"{_}", on_change = lambda e:to_my_answer(e, "複選")))
+                                self.ch.controls.append(Checkbox(data = f"{index}", label = f"{_}", on_change = lambda e:to_my_answer(e, "單選")))
                             else:
-                                ch.controls.append(
+                                self.ch.controls.append(
                                     Row(
                                         controls = [
-                                            Checkbox(data = f"{index}", label = f"{option[index]}", on_change = lambda e:to_my_answer(e, "複選")),
+                                            Checkbox(data = f"{index}", label = f"{option[index]}：", on_change = lambda e:to_my_answer(e, "單選")),
                                             Image(src=f"{_}")
                                         ],
                                     ) 
                                 )
-                    self.question_information.controls.append(ch)
+                    self.question_information.controls.append(self.ch)
+                    page.update()
+                    # Radio(value = "blue", label = "Blue - Adaptive Radio", adaptive = True, active_color = colors.BLUE),
+                def multiple_choice_questions(): # 複選
+                    self.ch = Column(
+                        controls = [],
+                    )
+                    for index, _ in enumerate(self.question_data[3:]):
+                        option = ['A', 'B', 'C', 'D']
+                        if _ != None:
+                            if _[0] in option: # 判斷是否有圖片
+                                self.ch.controls.append(Checkbox(data = f"{index}", label = f"{_}", on_change = lambda e:to_my_answer(e, "複選")))
+                            else:
+                                self.ch.controls.append(
+                                    Row(
+                                        controls = [
+                                            Checkbox(data = f"{index}", label = f"{option[index]}：", on_change = lambda e:to_my_answer(e, "複選")),
+                                            Image(src=f"{_}")
+                                        ],
+                                    ) 
+                                )
+                    self.question_information.controls.append(self.ch)
                     page.update()
                 def T_F_question(): # 是非
-                    ch = RadioGroup(
-                        content = Column(
-                            controls = [],
-                        ),
-                        on_change = lambda e:to_my_answer(e, "是非")
+                    self.ch = Column(
+                        controls = [],
                     )
                     for index, _ in enumerate(["O：是", "X：否"]):
-                        if index == 0:
-                            ch.content.controls.append(Radio(autofocus = True, value = f"{index}", label = f"{_}", adaptive = True, active_color = colors.BLUE))
-                        else:
-                            ch.content.controls.append(Radio(autofocus = True, value = f"{index}", label = f"{_}", adaptive = True, active_color = colors.BLUE))
-                    # 需要把radio改成checkbox才可以改狀態
-                    
+                        self.ch.controls.append(Checkbox(data = f"{index}", label = f"{_}", on_change = lambda e:to_my_answer(e, "是非")))
+                        # 同步已選過的選項使用self.ch.controls的list來改
+                        # self.all_my_answers[question_index]
                         
-                    self.question_information.controls.append(ch)
+                    self.question_information.controls.append(self.ch)
                     page.update()
                 self.my_answer = self.all_my_answers[question_index] # 我選的答案
                 self.question_answer = self.question_data[2].strip( ) # 題目正解
