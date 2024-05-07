@@ -3,6 +3,7 @@ from flet_route import Params, Basket
 from assets.pages.navigation import rail_item
 import openpyxl
 import random
+import time
 
 class Test(UserControl):
     def __init__(self, page):
@@ -11,7 +12,11 @@ class Test(UserControl):
         # 重新選擇題庫
         def restart_clicked(e):
             self.exam_settings.visible = True # 顯示第一區塊
+            self.get_results.visible = False # 隱藏提交考卷按鈕
+            self.open_question_navigation.visible = False # 隱藏題目列表按鈕
+            self.question_navigation.visible = False # 隱藏答題資訊欄
             self.question_information_main.visible = False # 隱藏第二區塊
+            self.check_result_main.visible = False # 隱藏第三區塊
             write_list() # 刷新工作表選擇
             page.update()
 
@@ -26,6 +31,142 @@ class Test(UserControl):
                 ),
             ),
             on_click=restart_clicked)
+        
+        # 提交考卷
+        def get_results_clicked(e):
+            # 寫入此測驗的題目和答題答案
+            self.history_excel = openpyxl.load_workbook("./assets/data/history_data.xlsx") # 讀取excel檔
+            self.history_wb = self.history_excel["答題記錄"]
+            # 算分數
+            # print(self.test_topic_data[self.question_num[0]-1])
+            right = 0 # 對的題數
+            for index, ans_content in enumerate(self.all_my_answers):
+                if ''.join(ans_content) == self.test_topic_data[self.question_num[index]-1][2].strip( ):
+                    right += 1
+            # 修改第三區塊的元件內容
+            self.check_result_main.controls[0].value = f"測驗結果： 答對{right}題"
+            # 清空元件
+            self.check_result.controls = []
+            # 列出對和錯的題目
+            for index, question_num in enumerate(self.question_num):
+                data = self.test_topic_data[question_num-1]
+                order = data[0].split("!n")
+                # 題目
+                if ''.join(self.all_my_answers[index]) == data[2].strip( ): # 判斷是否答錯
+                    self.check_result.controls.append(
+                        Row(
+                            controls = [
+                                Icon(name=icons.CIRCLE_OUTLINED, color="green"),
+                                Text("{}.({})：{}".format(index+1, data[2], order[0][4:]), size = 20, weight = "bold"),
+                            ],
+                        )
+                    )
+                else:
+                    self.check_result.controls.append(
+                        Row(
+                            controls = [
+                                Icon(name=icons.CLOSE, color="red"),
+                                Text("{}.({})：{}".format(index+1, data[2], order[0][4:]), size = 20, weight = "bold"),
+                            ],
+                        )
+                    )
+                # 題目圖片
+                if data[1] != None:
+                    self.check_result.controls.append(
+                        Image(src=f"{data[1]}")
+                    )
+                for _ in order[1:]:
+                    self.check_result.controls.append(
+                    Text(f"{_}", size = 20, weight = "bold")
+                    )
+                
+                self.check_result.controls.append(
+                    Text("", size = 20, weight = "bold")
+                )
+
+                # 選項
+                # for index, _ in enumerate(content[3:]):
+                #     option = ['A', 'B', 'C', 'D']
+                #     if _ != None:
+                #         if _[0] in option: # 判斷是否有圖片
+                #             self.topic_information.controls.append(
+                #                 Text(f"{_}", size = 20, weight = "bold")
+                #             )
+                #         else:
+                #             self.topic_information.controls.append(
+                #                 Row(
+                #                     controls = [
+                #                         Text(f"{option[index]}：", size = 20, weight = "bold"),
+                #                         Image(src=f"{_}")
+                #                     ],
+                #                 )
+                #             )
+                
+            # self.check_result.controls.append()
+
+            self.exam_settings.visible = False # 隱藏第一區塊
+            self.get_results.visible = False # 隱藏提交考卷按鈕
+            self.open_question_navigation.visible = False # 隱藏題目列表按鈕
+            self.question_navigation.visible = False # 隱藏答題資訊欄
+            self.question_information_main.visible = False # 隱藏第二區塊
+            self.check_result_main.visible = True # 顯示第三區塊
+            page.update()
+            # self.question_num.insert(0, )
+            # self.history_wb["A1"].value = self.history_wb["A1"].value.insert() # 每一次答題的題目紀錄
+            # self.history_wb["A2"].value = self.history_wb["A2"].value.insert(self.all_my_answers) # 每一次答題的答案紀錄
+            # print(now_history_position)
+
+
+        self.get_results = TextButton(
+            visible = False,
+            content = Container(
+                content=Column(
+                    controls = [
+                        Text(value="提交考卷", size=20),
+                    ],
+                    alignment=MainAxisAlignment.CENTER,
+                    spacing=5,
+                ),
+            ),
+            on_click=get_results_clicked)
+        
+        # 答題資訊欄
+        self.question_navigation_num = GridView( # 題號按鈕區
+            expand = True,
+            max_extent= 85,
+            controls = [],
+        )
+        self.question_navigation = Column(
+            visible = False,
+            # expand = True,
+            width = 200,
+            controls = [
+                Text("題號：", size = 20, weight = "bold"),
+                self.question_navigation_num,
+            ],
+        )
+        def open_question_navigation_click(e): # 開/關答題資訊欄
+            self.question_navigation.visible = not self.question_navigation.visible
+            page.update()
+        self.open_question_navigation = Row(
+            visible = False,
+            expand = True,
+            alignment = MainAxisAlignment.END,
+            controls = [
+                TextButton(
+                    content = Container(
+                        content=Column(
+                            controls = [
+                                Text(value="題目列表", size=20),
+                            ],
+                            alignment=MainAxisAlignment.CENTER,
+                            spacing=5,
+                        ),
+                    ),
+                    on_click=open_question_navigation_click
+                )
+            ],
+        )
 
         # 開始抽題並開始作答題目
         def test_submit_clicked(e):
@@ -66,17 +207,29 @@ class Test(UserControl):
 
                 # 判斷答案並推測題目類型
                 def to_my_answer(e, mode):# 記錄所選的答案
-                    self.history_excel = openpyxl.load_workbook("./assets/data/history_data.xlsx") # 讀取excel檔
-                    self.history_wb = self.history_excel["答題記錄"]
-                    # self.history_wb["B{}".format(question_index+1)]
                     if mode == "單選":
                         _ = ['A', 'B', 'C', 'D']
-                        print(self.ch.controls)
+                        # print(self.ch.controls)
                         for i in self.ch.controls: # 只有一個選項能勾
-                            if i.data == e.control.data: # 把不是選中項的取消
-                                i.value = True
-                            else:
-                                i.value = False
+                            try:
+                                # 把不是選中項的取消
+                                if i.data == e.control.data:
+                                    i.value = True
+                                    i.controls[0].value = True
+                                else:
+                                    i.value = False
+                                    i.controls[0].value = False 
+                                # 圖片選項的處理(如同上)
+                                if i.controls[0]:
+                                    if i.controls[0].data == e.control.data:
+                                        i.value = True
+                                        i.controls[0].value = True # 圖片的選項
+                                    else:
+                                        i.value = False
+                                        i.controls[0].value = False # 圖片的選項
+                            except AttributeError: # 沒有圖片的選項
+                                # print("AttributeError")
+                                pass
                         ans = _[int(e.control.data)]
                         self.all_my_answers[question_index] = [ans] # 記錄此題的答案
                         print("ALL：{}".format(self.all_my_answers))
@@ -86,19 +239,19 @@ class Test(UserControl):
                         ans = _[int(e.control.data)]
                         if ans not in self.my_answer:
                             self.my_answer.append(ans)
-                            print("add："+ans)
-                            print(self.my_answer)
+                            # print("add："+ans)
+                            # print(self.my_answer)
                         else:
                             self.my_answer.remove(ans)
-                            print("pop："+ans)
-                            print(self.my_answer)
+                            # print("pop："+ans)
+                            # print(self.my_answer)
                         self.my_answer.sort()
                         self.all_my_answers[question_index] = self.my_answer # 記錄此題的答案
                         print("ALL：{}".format(self.all_my_answers))
                         
                     if mode == "是非":
                         _ = ['O', 'X']
-                        print(self.ch.controls)
+                        # print(self.ch.controls)
                         for i in self.ch.controls: # 只有一個選項能勾
                             if i.data == e.control.data: # 把不是選中項的取消
                                 i.value = True
@@ -108,12 +261,19 @@ class Test(UserControl):
                         self.all_my_answers[question_index] = [ans] # 記錄此題的答案
                         print("ALL：{}".format(self.all_my_answers))
 
+                    if self.all_my_answers[question_index] != []:
+                        # print("change color")
+                        self.question_navigation_num.controls[question_index].style = ButtonStyle(bgcolor = colors.TERTIARY_CONTAINER)
+                    else:
+                        # print("change color = None")
+                        self.question_navigation_num.controls[question_index].style = ButtonStyle(bgcolor = None)
                     page.update()
                 def choice_question(): # 單選
                     self.ch = Column(
                         controls = [],
                     )
                     for index, _ in enumerate(self.question_data[3:]):
+                        # 創建選項
                         option = ['A', 'B', 'C', 'D']
                         if _ != None:
                             if _[0] in option: # 判斷是否有圖片
@@ -123,10 +283,16 @@ class Test(UserControl):
                                     Row(
                                         controls = [
                                             Checkbox(data = f"{index}", label = f"{option[index]}：", on_change = lambda e:to_my_answer(e, "單選")),
-                                            Image(src=f"{_}")
+                                            Image(src=f"{_}"),
                                         ],
-                                    ) 
+                                    )
                                 )
+                        # 取得此題上次所選的答案
+                        for i in self.all_my_answers[question_index]:
+                            for j in self.all_my_answers[question_index]:
+                                if j == _[0]:
+                                    # print("last ans："+j)
+                                    self.ch.controls[index].value = True
                     self.question_information.controls.append(self.ch)
                     page.update()
                     # Radio(value = "blue", label = "Blue - Adaptive Radio", adaptive = True, active_color = colors.BLUE),
@@ -135,6 +301,7 @@ class Test(UserControl):
                         controls = [],
                     )
                     for index, _ in enumerate(self.question_data[3:]):
+                        # 創建選項
                         option = ['A', 'B', 'C', 'D']
                         if _ != None:
                             if _[0] in option: # 判斷是否有圖片
@@ -148,6 +315,14 @@ class Test(UserControl):
                                         ],
                                     ) 
                                 )
+                        # 取得此題上次所選的答案
+                        for i in self.all_my_answers[question_index]:
+                            # print("i="+i)
+                            for j in self.all_my_answers[question_index]:
+                                # print("j="+j)
+                                if j == _[0]:
+                                    # print("last ans："+j)
+                                    self.ch.controls[index].value = True
                     self.question_information.controls.append(self.ch)
                     page.update()
                 def T_F_question(): # 是非
@@ -155,7 +330,14 @@ class Test(UserControl):
                         controls = [],
                     )
                     for index, _ in enumerate(["O：是", "X：否"]):
+                        # 創建選項
                         self.ch.controls.append(Checkbox(data = f"{index}", label = f"{_}", on_change = lambda e:to_my_answer(e, "是非")))
+                        # 取得此題上次所選的答案
+                        for i in self.all_my_answers[question_index]:
+                            for j in self.all_my_answers[question_index]:
+                                if j == _[0]:
+                                    # print("last ans："+j)
+                                    self.ch.controls[index].value = True
                         # 同步已選過的選項使用self.ch.controls的list來改
                         # self.all_my_answers[question_index]
                         
@@ -163,13 +345,18 @@ class Test(UserControl):
                     page.update()
                 self.my_answer = self.all_my_answers[question_index] # 我選的答案
                 self.question_answer = self.question_data[2].strip( ) # 題目正解
-                print(self.question_answer)
-                if self.question_answer in ['A', 'B', 'C', 'D']: # 單選題
-                    choice_question()
-                elif self.question_answer[0] in ['A', 'B', 'C', 'D']: # 複選題
-                    multiple_choice_questions()
-                elif self.question_answer[0] in ['O', 'X']: # 是非題
-                    T_F_question()
+                # print(self.question_answer)
+                try:
+                    if self.question_answer in ['A', 'B', 'C', 'D']: # 單選題
+                        choice_question()
+                    elif self.question_answer[0] in ['A', 'B', 'C', 'D']: # 複選題
+                        multiple_choice_questions()
+                    elif self.question_answer[0] in ['O', 'X']: # 是非題
+                        T_F_question()
+                except TypeError:
+                    print("TypeError")
+                    warning_info("發生錯誤：請確認題庫資料格式是否正確\n錯誤代碼：TypeError")
+                    
 
                 # 上一題、下一題
                 def question_information_up_down_button_clicked(e):
@@ -214,6 +401,9 @@ class Test(UserControl):
                 # self.test_topic_data
                 page.update()
 
+            def question_navigation_num_clikc(e): # 點選答題資訊欄的題號
+                # print(e.control.content.content.controls[0].data)
+                create_question(int(e.control.content.content.controls[0].data))
 
             # 判斷輸入的值是否為整數
             try:
@@ -226,11 +416,28 @@ class Test(UserControl):
                         self.question_index = 0 # 題目起始點值
                         self.question_num = random.sample(range(start, end+1), random_num)
                         self.all_my_answers = [[] for _ in range(random_num)] # 我每題作答的答案
+                        self.question_navigation_num.controls = [] # 清除答題資訊欄
+                        for index, _ in enumerate(self.all_my_answers): # 初始化答題資訊欄
+                            self.question_navigation_num.controls.append(
+                                TextButton(
+                                    content = Container(
+                                        content=Column(
+                                            controls = [
+                                                Text(data = f"{index}", value=f"{index+1}", size=16),
+                                            ],
+                                            alignment=MainAxisAlignment.CENTER,
+                                        ),
+                                    ),
+                                    on_click = lambda e:question_navigation_num_clikc(e)
+                                )
+                            )
                         print(self.all_my_answers)
                         create_question(self.question_index)
                         # print(self.question_num)
                         self.exam_settings.visible = False # 隱藏第一區塊
                         self.question_information_main.visible = True # 顯示第二區塊
+                        self.get_results.visible = True # 顯示提交考卷按鈕
+                        self.open_question_navigation.visible = True # 顯示題目列表按鈕
                         page.update()
 
                     else:
@@ -407,6 +614,19 @@ class Test(UserControl):
             ],
         )
     # 區塊三：測驗結果
+        self.check_result = Column(
+            expand = True,
+            scroll = "AUTO",
+            controls = [],
+        )
+        self.check_result_main = Column(
+            expand = True,
+            visible = False,
+            controls = [
+                Text("測驗結果：", size = 20, weight = "bold"),
+                self.check_result,
+            ],
+        )
 
     def view(self, page: Page, params: Params, basket: Basket):
         return View(
@@ -427,13 +647,18 @@ class Test(UserControl):
                                     controls = [
                                         Text("題庫測驗", size=30, weight="bold"),
                                         self.test_restart,
+                                        self.get_results,
+                                        self.open_question_navigation,
                                     ],
                                 ),
                                 Divider(height=1),
                                 self.exam_settings,
                                 self.question_information_main,
+                                self.check_result_main,
                             ],
                         ),
+                        VerticalDivider(width=1),
+                        self.question_navigation,
                     ],
                 ),
             ],
