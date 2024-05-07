@@ -1,25 +1,25 @@
 import docx
 import openpyxl
-from openpyxl.drawing.image import Image
 import os, re
 
-filename = "test.docx"
-doc = docx.Document(filename)
-para = doc.paragraphs
-print('段落數量： ', len(para),'\n')
-i = 0
+filename = "test" # word檔名
+doc = docx.Document(filename+".docx") # 開啟word
+para = doc.paragraphs # 整份文件內容
+# print('段落數量： ', len(para),'\n')
+index = 0 # 題號
 is_first_topic = False # 是否為題目開始的段落
 is_topic = False # 是否為題目
-answer = 
-save_path = ".\\imgs\\"
+answer = "" # 答案
+save_path = "./assets/imgs/"+filename # 圖片儲存位址
 
 # 匯出word裡的圖片
 def w_img(blob_data, save_path):
     with open(save_path, "wb") as f:
         f.write(blob_data)
 
-def to_excel(workbook, data, x, y, is_topic = None): # workbook, data, x, y
-    excel = openpyxl.load_workbook("exam_data.xlsx")
+# word資料傳入excel
+def to_excel(workbook, data, x = "1", y = "A", is_topic = None):
+    excel = openpyxl.load_workbook("exam_data.xlsx") # 讀取excel檔
     all_sheetnames = excel.sheetnames
     if workbook in all_sheetnames: # 判斷輸入的工作表是否存在
         wb = excel[workbook] # 開啟工作表
@@ -35,122 +35,71 @@ def to_excel(workbook, data, x, y, is_topic = None): # workbook, data, x, y
 
     excel.save("exam_data.xlsx")
 
-    # 最後要save
-
-
 # 取得word裡的題目(含選項)與圖片
 for _ in range(0, len(para)):
     try:
-        content = para[_]
+        content = para[_] # 每個段落內容
+        no_ans_topic = "" # 去掉答案的題目
+        img_info = [""] # 圖片資訊
         if content.text != "": # 判斷文本是否為空值
-            topic = re.sub(r'^\d+', '', content.text) # 去掉題目的題號
-            answer = re.search(r'（(.*?)）', topic)
-            topic = re.sub
-            option = [content.text[0], content.text[1]]
-            # 取得題目
-            if len(topic) > 6:
-                if [topic[0], topic[4], topic[5]] == ['(', ')', '：'] or [topic[0], topic[2], topic[3]] == ['（', '）', '：']:
-                    i += 1
-                    is_first_topic = True
-                    is_topic = True
-                    print(i, topic)
-                    to_excel(filename, topic, i+1, "A")
+            no_num_topic = re.sub(r'[0-9]', '', content.text) # 去掉題目的題號
+            compare = re.search(r'（(.*?)）：|\((.*?)\)：', no_num_topic) # 尋找指定規則
+            if compare: # 取得題目的答案並去除
+                answer = compare.groups() # 取得答案
+                no_ans_topic = re.sub(r'（(.*?)）：|\((.*?)\)：', '( )：', no_num_topic) # 去掉答案的題目
+            option = [content.text[0], content.text[1]] # 選項
+            # 取得題目和答案
+            if len(no_ans_topic) > 4:
+                if [no_ans_topic[0], no_ans_topic[2], no_ans_topic[3]] == ['(', ')', '：']:
+                    index += 1
+                    is_first_topic = True # 是否為題目的第一個段落
+                    is_topic = True # 是否為題目
+                    print(index, no_ans_topic)
+                    to_excel(filename, no_ans_topic, index, "A") # 傳入題目
+                    for _ in answer:
+                        if _:
+                            to_excel(filename, _, index, "C") # 傳入答案
 
-#             # match ... case ... 只支援python 3.10以上
-#             # 為了相容性則不選擇使用      
+            # match ... case ... 只支援python 3.10以上
+            # 為了相容性則不選擇使用      
             if option == ['A', '：']: # 選項A
                 is_topic = False
+                img_info = ["A", "D"]
                 print(content.text)
-                to_excel(filename, content.text, i+1, "C")
+                to_excel(filename, content.text, index, "D") # 傳入選項
             elif option == ['B', '：']: # 選項B
                 is_topic = False
+                img_info = ["B", "E"]
                 print(content.text)
-                to_excel(filename, content.text, i+1, "D")
+                to_excel(filename, content.text, index, "E") # 傳入選項
             elif option == ['C', '：']: # 選項C
                 is_topic = False
+                img_info = ["C", "F"]
                 print(content.text)
-                to_excel(filename, content.text, i+1, "E")
+                to_excel(filename, content.text, index, "F") # 傳入選項
             elif option == ['D', '：']: # 選項D
                 is_topic = False
+                img_info = ["D", "G"]
                 print(content.text)
-                to_excel(filename, content.text, i+1, "F")
+                to_excel(filename, content.text, index, "G") # 傳入選項
             if is_topic and is_first_topic == False: # 判斷是否還有題目
                 print(content.text)
-                to_excel(filename, "!n{}".format(content.text), i+1, "A", 1)
+                to_excel(filename, "!n{}".format(content.text), index, "A", 1)
             is_first_topic = False
         img = content._element.xpath(".//pic:pic")
         if img:
             print(img)
 
             img = img[0]
-            rel = img.xpath('.//a:blip/@r:embed')[0]
+            rel = img.xpath('.//a:blip/@r:embed')[0] # 取得picture's path
             image_part = doc.part.related_parts[rel]
-            img_blob = image_part.image.blob
-            print(image_part.image.blob)
-            w_img(img_blob, "{}img{}.png".format(save_path, i))
+            img_blob = image_part.image.blob # 轉為二進制
+            path = "{}img{}{}.png".format(save_path, index, img_info[0])
+            w_img(img_blob, path) # 下載image
+            if img_info != [""]: # 判斷是否為選項圖片
+                to_excel(filename, path, index, img_info[1]) # 傳入選項圖片的位址
+            else:
+                to_excel(filename, path, index, "B") # 傳入題目圖片的位址
 
     except IndexError:
         print("IndexERROR")
-
-
-def get_pictures(word_path, result_path): # 讀取圖片
-    """
-    图片提取
-    :param word_path: word路径
-    :return: 
-    """
-    try:
-        doc = docx.Document(word_path)
-        dict_rel = doc.part._rels
-        for rel in dict_rel:
-            print(rel)
-            rel = dict_rel[rel]
-            if "image" in rel.target_ref:
-                if not os.path.exists(result_path):
-                    os.makedirs(result_path)
-                img_name = re.findall("/(.*)", rel.target_ref)[0]
-                word_name = os.path.splitext(word_path)[0]
-                if os.sep in word_name:
-                    new_name = word_name.split('\\')[-1]
-                else:
-                    new_name = word_name.split('/')[-1]
-                img_name = f'{new_name}-'+'.'+f'{img_name}'
-                with open(f'{result_path}/{img_name}', "wb") as f:
-                    f.write(rel.target_part.blob)
-    except:
-        pass
-
-def get_word_pictures(): # 讀取圖片
-    global filename
-    """
-    图片提取
-    :param word_path: word路径
-    :return: 
-    """
-    try:
-        doc = docx.Document(filename)
-        dict_rel = doc.part._rels
-        print(dict_rel)
-        for index, rel in enumerate(dict_rel):
-            rel = dict_rel[rel]
-            print(index, rel.target_ref)
-            # if "image" in rel.target_ref:
-            #     if not os.path.exists(result_path):
-            #         os.makedirs(result_path)
-            #     img_name = re.findall("/(.*)", rel.target_ref)[0]
-            #     word_name = os.path.splitext(word_path)[0]
-            #     if os.sep in word_name:
-            #         new_name = word_name.split('\\')[-1]
-            #     else:
-            #         new_name = word_name.split('/')[-1]
-            #     img_name = f'{new_name}-'+'.'+f'{img_name}'
-            #     with open(f'{result_path}/{img_name}', "wb") as f:
-            #         f.write(rel.target_part.blob)
-    except:
-        pass
-
-# get_word_pictures()
-# os.chdir("C:\MyProgram\考題練習")
-# spam=os.listdir(os.getcwd())
-# for i in spam:
-#     get_pictures(str(i),os.getcwd())
