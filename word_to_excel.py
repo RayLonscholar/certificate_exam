@@ -2,8 +2,8 @@ import docx
 import openpyxl
 import os, re
 
-filename = "test" # word檔名
-doc = docx.Document(filename+".docx") # 開啟word
+filename = "example" # 題庫word名稱
+doc = docx.Document(f"./questions/{filename}.docx") # 開啟word
 para = doc.paragraphs # 整份文件內容
 # print('段落數量： ', len(para),'\n')
 index = 0 # 題號
@@ -83,6 +83,7 @@ for _ in range(0, len(para)):
                 print(content.text)
                 to_excel(filename, content.text, index, "G") # 傳入選項
             if is_topic and is_first_topic == False: # 判斷是否還有題目
+                # 待新增判斷是否還有題目圖片
                 print(content.text)
                 to_excel(filename, "!n{}".format(content.text), index, "A", 1)
             is_first_topic = False
