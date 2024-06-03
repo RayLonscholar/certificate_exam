@@ -1,4 +1,5 @@
 {
     "theme": "DARK",
-    "window_size": "1600x900"
+    "window_size": "1600x900",
+    "button_text_color": ""
 }

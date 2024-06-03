@@ -1,42 +1,22 @@
 {
-    "Tue May 28 20:41:02 2024": {
+    "Mon Jun  3 17:50:56 2024": {
         "題庫名稱": "example",
         "答對題數": 1,
         "所有題目": [
             [
-                "( )：xAA的進位值是多少？",
-                null,
+                "( )：有一個Python程式如下：!n<img>!n執行完後!n可以得到下列結果。",
+                "['./assets/imgs/exampleimg1_1.png', '', '']",
                 "D",
-                "A：98",
-                "B：80",
-                "C：210",
-                "D：170"
-            ],
-            [
-                "( )：Python在程式流程控制中，條件判斷所得的是布林值，然後依此布林值執行流程控制。",
-                null,
-                "O",
-                null,
-                null,
-                null,
-                null
-            ],
-            [
-                "( )：有一個Python程式如下：!n可以得到下列結果。",
-                "./assets/imgs/exampleimg3.png",
-                "C",
-                "./assets/imgs/exampleimg3A.png",
-                "./assets/imgs/exampleimg3B.png",
-                "./assets/imgs/exampleimg3C.png",
-                "./assets/imgs/exampleimg3D.png"
+                "A：big",
+                "B：small",
+                "C：medium",
+                "D：large"
             ]
         ],
         "所選的答案": [
             [
                 "D"
-            ],
-            [],
-            []
+            ]
         ]
     }
 }
