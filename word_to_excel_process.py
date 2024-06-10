@@ -27,20 +27,20 @@ def process_word_file(selected_file):
         excel = openpyxl.load_workbook("exam_data.xlsx") # 讀取excel檔
         all_sheetnames = excel.sheetnames
         if workbook in all_sheetnames: # 判斷輸入的工作表是否存在
-            wb = excel[workbook] # 開啟工作表
-        else:
-            # 創建工作表並開啟
-            excel.create_sheet("{}".format(workbook))
-            wb = excel[workbook]
+            excel.remove(excel[workbook]) # 刪除工作表
+        # 創建工作表並寫入
+        excel.create_sheet("{}".format(workbook))
+        wb = excel[workbook]
         for column_index, column_content in enumerate(memory):
             for row_index, row_content in enumerate(column_content):
                 wb.cell(column_index+1, row_index+1).value = row_content
         excel.save("exam_data.xlsx")
 
-    # 取得word裡的題目(含選項)與圖片
+    # 取得word裡的題目(含選項與圖片)
     for _ in range(0, len(para)):
         try:
             content = para[_] # 每個段落內容
+            print(content)
             no_ans_topic = "" # 去掉答案的題目
             img_info = [""] # 圖片資訊
             option = [] # 選項
