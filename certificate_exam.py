@@ -25,14 +25,14 @@ def main(page:ft.Page) -> ft.Page:
     page.title = "證照考試測驗"
 
     # 字體
-    page.fonts = {"msjhbd": "./assets/fonts/msjhbd.ttc"}
+    page.fonts = data['font_memory'] # 讀取字體暫存
 
     # Disable Animation Transition 停用動畫過渡
     theme = Theme()
     theme.page_transitions.windows = PageTransitionTheme.NONE
     page.theme = theme
     page.theme_mode = f"{data['theme']}" # 主題
-    page.theme = Theme(color_scheme=ColorScheme(primary=data['button_text_color']), font_family = "msjhbd") # 基本元件顏色
+    page.theme = Theme(color_scheme=ColorScheme(primary=data['button_text_color']), font_family = f"{data['text_font']}") # 基本元件顏色
     page.update()
 
     app_routes = [

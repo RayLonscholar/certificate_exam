@@ -2,6 +2,7 @@ from flet import *
 from flet_route import Params, Basket
 from flet_contrib.color_picker import ColorPicker
 from assets.pages.navigation import rail_item
+import os
 import ctypes
 import json
 import time
@@ -38,11 +39,13 @@ class Settings(UserControl):
             self.window_size.hint_text = f"{data['window_size']}"
             if data['button_text_color'] != "":
                 self.colorpicker.color = data['button_text_color']
+            self.text_fonts.hint_text = f"{data['text_font']}"
+            page.update()
 
         # 保存設定檔至json
         def save_settings(edit_title, edit_content):
             data = read_json()
-            data[f"{edit_title}"] = f"{edit_content}"
+            data[f"{edit_title}"] = edit_content
             with open(jsonfile, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=4, ensure_ascii = False)
 
@@ -94,7 +97,7 @@ class Settings(UserControl):
         def close_dlg(e): # 同意修改
             self.accept = True
             # print(self.window_size.value)
-            save_settings("window_size", self.window_size.value)
+            save_settings("window_size", f"{self.window_size.value}")
         def back_size(e): # 不同意修改
             self.accept == False
             self.check_time = 0
@@ -111,10 +114,10 @@ class Settings(UserControl):
         )
         self.window_size = Dropdown(
             expand = True,
-            label="視窗大小",
-            hint_text="None",
-            options=[],
-            autofocus=True,
+            label = "視窗大小",
+            hint_text = "None",
+            options = [],
+            autofocus = True,
             on_change = change_window_size
         )
         for w_size in [
@@ -129,7 +132,9 @@ class Settings(UserControl):
             "1920x1080",
             "1920x1200",
             "1920x1440",
-            "2560x1440"
+            "2560x1440",
+            "2560x1600",
+            "3840x2160"
             ]: # 判斷您的螢幕最大大小
             width_height_size = w_size.split('x')
             if int(width_height_size[0]) <= screenx*factor and int(width_height_size[1]) <= screeny*factor:
@@ -140,11 +145,11 @@ class Settings(UserControl):
         self.colorpicker = ColorPicker()
         def click_colorpicker_submit(e):
             # print(self.colorpicker.color)
-            page.theme = Theme(color_scheme=ColorScheme(primary=f"{self.colorpicker.color}"), font_family = "msjhbd") # 調整基本元件顏色
-            save_settings("button_text_color", self.colorpicker.color)
+            page.theme.color_scheme = ColorScheme(primary=f"{self.colorpicker.color}") # 調整基本元件顏色
+            save_settings("button_text_color", f"{self.colorpicker.color}")
             page.update()
         def click_colorpicker_initial(e):
-            page.theme = Theme(color_scheme=ColorScheme(primary=""), font_family = "msjhbd") # 重置基本元件顏色
+            page.theme.color_scheme = ColorScheme(primary="") # 重置基本元件顏色
             save_settings("button_text_color", "")
             page.update()
         self.colorpicker_submit = TextButton(
@@ -173,7 +178,33 @@ class Settings(UserControl):
             ),
             on_click = click_colorpicker_initial
         )
-        write_settings_widget()
+
+        # 設定文字字體
+        def change_text_fonts(e):
+            # print(e.control.key)
+            page.theme.font_family = f"{e.control.key}" # 基本元件顏色
+            save_settings("font_memory", {f"{e.control.key}": f"{e.control.data}"})
+            save_settings("text_font", f"{e.control.key}")
+            page.update()
+
+        self.text_fonts = Dropdown(
+            expand = True,
+            label = "文字字體",
+            hint_text = "None",
+            options = [],
+            autofocus = True,
+        )
+        # 寫入文字字體的Dropdown
+        for font in os.listdir("./assets/fonts/"):
+            font_path = os.path.join("./assets/fonts/", font)
+            if os.path.isfile(font_path):
+                font_name = font.split('.')
+                if font_name[-1] in ["ttc", "ttf", "otf"]:
+                    page.fonts[f'{font_name[0]}'] = f"{font_path}"
+                    self.text_fonts.options.append(dropdown.Option(f"{font_name[0]}", data = f"{font_path}", on_click = change_text_fonts))
+                    # print(font_name, font_path)
+        # print(page.fonts)
+        write_settings_widget() # 寫入設定值
 
     def view(self, page: Page, params: Params, basket: Basket):
         return View(
@@ -226,6 +257,13 @@ class Settings(UserControl):
                                                         ),
                                                     ],
                                                 ),
+                                            ],
+                                        ),
+                                        Divider(height = 1),
+                                        Row(
+                                            controls = [
+                                                Text("文字字體：", size=22, weight="bold"),
+                                                self.text_fonts,
                                             ],
                                         ),
                                         Divider(height = 1),

@@ -1,5 +1,9 @@
 {
     "theme": "DARK",
     "window_size": "1600x900",
-    "button_text_color": ""
+    "button_text_color": "",
+    "font_memory": {
+        "微軟正黑體": "./assets/fonts/微軟正黑體.ttc"
+    },
+    "text_font": "微軟正黑體"
 }
