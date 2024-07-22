@@ -6,7 +6,8 @@
 # 🧭功能：
   - 可用於選項或證照測驗等
   - 複習題目
-  - 練習題目
+  - 練習、模擬試題
+  - 自訂外觀、字體等
   
 # 🔎預覽介面：
   <div style="display: grid; grid-template-columns: 1fr 1fr;">
