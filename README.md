@@ -14,5 +14,21 @@
     <img alt="複習頁面" title="複習頁面" src="https://github.com/RayLonscholar/certificate_exam/assets/89000042/1bb1f46e-4032-430b-b3bf-01cb23be7e9a" style="width: 49%; height: auto;" />
     <img alt="測驗頁面" title="測驗頁面" src="https://github.com/RayLonscholar/certificate_exam/assets/89000042/9d72a35c-4e54-4007-b87f-8a770981a041" style="width: 49%; height: auto;" />
     <img alt="查看歷史測驗頁面" title="查看歷史測驗頁面" src="https://github.com/RayLonscholar/certificate_exam/assets/89000042/58aaca2b-e8a9-4f53-ba6e-5bbdbc1e373f" style="width: 49%; height: auto;" />
-
   </div>
+
+# 🏗️整體架構：
+  <table style = "border: 1px solid black;">
+    <tr>
+      <th rowspan = 3>系統架構</th>
+      <td>程式語言</td>
+      <td><img src = "https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg" alt = "python" width = "20" height = "20">Python</td>
+    </tr>
+    <tr>
+      <td>UI介面</td>
+      <td>Flet</td>
+    </tr>
+    <tr>
+      <td>資料格式</td>
+      <td>Json</td>
+    </tr>
+  </table>
